@@ -160,5 +160,11 @@ namespace IdentityServer3.Core.Models
         {
             get { return Claims.Where(x => x.Type == Constants.ClaimTypes.Scope).Select(x => x.Value); }
         }
+
+
+        /// <summary>
+        /// Stores the ClaimsIdentity for actor when impersonation is used
+        /// </summary>
+        public ClaimsIdentity Actor { get; set; }
     }
 }

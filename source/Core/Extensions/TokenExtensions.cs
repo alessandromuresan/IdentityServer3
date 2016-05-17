@@ -54,6 +54,18 @@ namespace IdentityServer3.Core.Models
 
             payload.AddClaims(normalClaims);
 
+            var handler = new JwtSecurityTokenHandler();           
+
+            if(token.Actor != null)
+            {
+                payload.AddClaim(new System.Security.Claims.Claim("http://schemas.xmlsoap.org/ws/2009/09/identity/claims/actor",
+                    handler.WriteToken(new JwtSecurityToken(claims: token.Actor.Claims))));
+
+                //payload.AddClaim(new System.Security.Claims.Claim("actort",
+                //    handler.WriteToken(new JwtSecurityToken(claims: token.Actor.Claims))));
+            }
+
+
             // deal with amr
             var amrValues = amrClaims.Select(x => x.Value).Distinct().ToArray();
             if (amrValues.Any())

@@ -25,6 +25,7 @@ using Microsoft.Owin.Security.DataHandler;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Xpo.Common.Security.Owin;
 
 namespace Owin
 {
@@ -47,7 +48,8 @@ namespace Owin
                 ExpireTimeSpan = options.ExpireTimeSpan,
                 SlidingExpiration = options.SlidingExpiration,
                 CookieSecure = GetCookieSecure(options.SecureMode),
-                TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
+                //TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
+                TicketDataFormat = new XpoTicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
                 SessionStore = GetSessionStore(options.SessionStoreProvider),
                 Provider = new CookieAuthenticationProvider
                 {
@@ -72,7 +74,8 @@ namespace Owin
                 ExpireTimeSpan = Constants.ExternalCookieTimeSpan,
                 SlidingExpiration = false,
                 CookieSecure = GetCookieSecure(options.SecureMode),
-                TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.ExternalAuthenticationType))
+                //TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.ExternalAuthenticationType))
+                TicketDataFormat = new XpoTicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
             };
             app.UseCookieAuthentication(external);
 
@@ -84,7 +87,8 @@ namespace Owin
                 ExpireTimeSpan = options.ExpireTimeSpan,
                 SlidingExpiration = options.SlidingExpiration,
                 CookieSecure = GetCookieSecure(options.SecureMode),
-                TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PartialSignInAuthenticationType))
+                //TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PartialSignInAuthenticationType))
+                TicketDataFormat = new XpoTicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
             };
             app.UseCookieAuthentication(partial);
 
