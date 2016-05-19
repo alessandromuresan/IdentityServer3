@@ -178,13 +178,6 @@ namespace IdentityServer3.Core.Services.Default
                 Client = request.Client
             };
 
-            //Stash Actor into the token so that it can be serialized to JwtPayload
-            var claimsIdentity = request.Subject.Identity as ClaimsIdentity;
-            if (claimsIdentity != null && claimsIdentity.Actor != null)
-            {
-                token.Actor = claimsIdentity.Actor;
-            }
-
             return token;
         }
 

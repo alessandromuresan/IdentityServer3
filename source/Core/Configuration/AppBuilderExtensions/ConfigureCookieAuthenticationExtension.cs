@@ -25,13 +25,13 @@ using Microsoft.Owin.Security.DataHandler;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Xpo.Common.Security.Owin;
 
 namespace Owin
 {
     internal static class UseCookieAuthenticationExtension
     {
-        public static IAppBuilder ConfigureCookieAuthentication(this IAppBuilder app, CookieOptions options, IDataProtector dataProtector)
+        public static IAppBuilder ConfigureCookieAuthentication(this IAppBuilder app, CookieOptions options, IDataProtector dataProtector, 
+            Func<Microsoft.Owin.Security.DataProtection.IDataProtector, ISecureDataFormat<AuthenticationTicket>> ticketDataFormatFactory = null)
         {
             if (options == null) throw new ArgumentNullException("options");
             if (dataProtector == null) throw new ArgumentNullException("dataProtector");
@@ -49,7 +49,6 @@ namespace Owin
                 SlidingExpiration = options.SlidingExpiration,
                 CookieSecure = GetCookieSecure(options.SecureMode),
                 //TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
-                TicketDataFormat = new XpoTicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
                 SessionStore = GetSessionStore(options.SessionStoreProvider),
                 Provider = new CookieAuthenticationProvider
                 {
@@ -64,7 +63,13 @@ namespace Owin
                     }
                 }
             };
+
+            primary.SetTicketDataFormat(dataProtector, 
+                options.Prefix + Constants.PrimaryAuthenticationType,
+                ticketDataFormatFactory);
+
             app.UseCookieAuthentication(primary);
+
 
             var external = new CookieAuthenticationOptions
             {
@@ -75,8 +80,12 @@ namespace Owin
                 SlidingExpiration = false,
                 CookieSecure = GetCookieSecure(options.SecureMode),
                 //TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.ExternalAuthenticationType))
-                TicketDataFormat = new XpoTicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
             };
+
+            external.SetTicketDataFormat(dataProtector,
+                options.Prefix + Constants.ExternalAuthenticationType,
+                ticketDataFormatFactory);
+
             app.UseCookieAuthentication(external);
 
             var partial = new CookieAuthenticationOptions
@@ -88,8 +97,12 @@ namespace Owin
                 SlidingExpiration = options.SlidingExpiration,
                 CookieSecure = GetCookieSecure(options.SecureMode),
                 //TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PartialSignInAuthenticationType))
-                TicketDataFormat = new XpoTicketDataFormat(new DataProtectorAdapter(dataProtector, options.Prefix + Constants.PrimaryAuthenticationType)),
             };
+
+            partial.SetTicketDataFormat(dataProtector,
+                options.Prefix + Constants.PartialSignInAuthenticationType,
+                ticketDataFormatFactory);
+
             app.UseCookieAuthentication(partial);
 
             Action<string> setCookiePath = path =>
@@ -140,6 +153,21 @@ namespace Owin
         private static IAuthenticationSessionStore GetSessionStore(IAuthenticationSessionStoreProvider provider)
         {
             return provider != null ? new AuthenticationSessionStoreWrapper(provider) : null;
+        }
+
+        public static void SetTicketDataFormat(this CookieAuthenticationOptions options, 
+            IDataProtector dataProtector, 
+            string prefix,
+            Func<Microsoft.Owin.Security.DataProtection.IDataProtector, ISecureDataFormat<AuthenticationTicket>> ticketDataFormatFactory)
+        {
+            if (ticketDataFormatFactory != null)
+            {
+                options.TicketDataFormat = ticketDataFormatFactory(new DataProtectorAdapter(dataProtector, prefix));
+            }
+            else
+            {
+                options.TicketDataFormat = new TicketDataFormat(new DataProtectorAdapter(dataProtector, prefix));
+            }
         }
     }
 }

@@ -49,7 +49,7 @@ namespace IdentityServer3.Core.Configuration
         }
 
         internal void Validate()
-        {            
+        {
             if (AuthenticationOptions == null)
             {
                 throw new ArgumentException("AuthenticationOptions is missing");
@@ -135,6 +135,14 @@ namespace IdentityServer3.Core.Configuration
         public IDataProtector DataProtector { get; set; }
 
         /// <summary>
+        /// Gets or Sets TicketDataFormat factory delegate
+        /// </summary>
+        /// <value>
+        /// TicketDataFormat factory delegate
+        /// </value>
+        public Func<Microsoft.Owin.Security.DataProtection.IDataProtector, Microsoft.Owin.Security.ISecureDataFormat<Microsoft.Owin.Security.AuthenticationTicket>> TicketDataFormatFactory { get; set; }
+
+        /// <summary>
         /// Gets or sets the endpoint configuration.
         /// </summary>
         /// <value>
@@ -213,13 +221,13 @@ namespace IdentityServer3.Core.Configuration
         /// <c>true</c> if the welcome page is enabled; otherwise, <c>false</c>.
         /// </value>
         public bool EnableWelcomePage { get; set; }
-        
+
         internal IEnumerable<X509Certificate2> PublicKeysForMetadata
         {
             get
             {
                 var keys = new List<X509Certificate2>();
-                
+
                 if (SigningCertificate != null)
                 {
                     keys.Add(SigningCertificate);

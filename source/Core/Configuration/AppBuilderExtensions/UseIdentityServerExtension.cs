@@ -84,7 +84,7 @@ namespace Owin
             app.UseAutofacMiddleware(container);
 
             app.UseCors();
-            app.ConfigureCookieAuthentication(options.AuthenticationOptions.CookieOptions, options.DataProtector);
+            app.ConfigureCookieAuthentication(options.AuthenticationOptions.CookieOptions, options.DataProtector, options.TicketDataFormatFactory);
 
             // this needs to be before external middleware
             app.ConfigureSignOutMessageCookie();
